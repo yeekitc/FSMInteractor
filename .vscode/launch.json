@@ -8,8 +8,15 @@
             "name": "Launch in a Chrome Browser",
             "request": "launch",
             "type": "chrome",
-            "url": "http://localhost:80",
+            "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}/src"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome with Live Server",
+            "url": "http://127.0.0.1:5500/out/index.html",
+            "webRoot": "${workspaceFolder}"
         },
         {
             "type": "node",
@@ -18,7 +25,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\server.js"
+            "program": "${workspaceFolder}/server.js"
         }
     ]
 }

@@ -167,7 +167,7 @@ export class FSM {
     public damage() : void {
             
         // **** YOUR CODE HERE ****
-
+        this._parent?.damage();
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -182,14 +182,30 @@ export class FSM {
         // walk over all the transitions in all the states to get those bound
             
         // **** YOUR CODE HERE ****
-
+        const allRegions : readonly Region[] = this.regions;
+        const allStates : readonly State[] = this.states;
         // start state is the first one
-            
+        this._startState = this._states[0];
+        this._currentState = this._startState;
+        // bind all the states and transitions
+        for (let st of allStates) {
+            for (let trans of st.transitions) {
+                // connect the transition to the target state
+                trans.bindTarget(allStates);
+                // connect the event to the region
+                trans.onEvent.bindRegion(allRegions);
+                // connect the actions to their regions
+                for (let act of trans.actions) {
+                    act.bindRegion(allRegions);
+                }
+            }
+        }
         // **** YOUR CODE HERE ****
 
         // need to link all regions back to this object as their parent
-            
-        // **** YOUR CODE HERE ****
+        for (let reg of this._regions) {
+            reg.parent = this;
+        }
 
     }
     
@@ -200,6 +216,7 @@ export class FSM {
     public reset() {
             
         // **** YOUR CODE HERE ****
+        this._currentState = this._startState;
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -215,7 +232,20 @@ export class FSM {
         if (!this.currentState) return;
            
         // **** YOUR CODE HERE ****
+        const possibleTransitions : readonly Transition[] = this.currentState.transitions
 
+        // find the first transition that matches the event
+        for (let trans of possibleTransitions) {
+            if (trans.match(evtType, reg)) {
+                // execute all the actions in the transition
+                for (let act of trans.actions) {
+                    act.execute(evtType, reg);
+                }
+                // move to the new state
+                this._currentState = trans.target;
+                return;
+            }
+        }
     }
       
     //-------------------------------------------------------------------
