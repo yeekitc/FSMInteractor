@@ -1,0 +1,62 @@
+{
+    "regions": [
+        {
+            "name": "water",
+            "x": 50, "y": 50,
+            "w": 50, "h": 50,
+            "emoji": "💧"
+        },
+        {
+            "name": "fire",
+            "x": 150, "y": 50,
+            "w": 50, "h": 50,
+            "emoji": "🔥"
+        },
+        {
+            "name": "draggingElement",
+            "x": 0, "y": 0,
+            "w": 50, "h": 50,
+            "emoji": null
+        }
+    ],
+    "states": [
+        {
+            "name": "idle",
+            "transitions": [
+                {
+                    "onEvent": {"evtType": "doubleclick", "region": "craftingArea"},
+                    "target": "idle",
+                    "actions": [
+                        {"act": "spawn_random_known"}
+                    ]
+                },
+                {
+                    "onEvent": {"evtType": "press", "region": "*"},
+                    "target": "dragging",
+                    "actions": [
+                        {"act": "start_drag"}
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "dragging",
+            "transitions": [
+                {
+                    "onEvent": {"evtType": "move", "region": "*"},
+                    "target": "dragging",
+                    "actions": [
+                        {"act": "move_dragged"}
+                    ]
+                },
+                {
+                    "onEvent": {"evtType": "release", "region": "*"},
+                    "target": "idle",
+                    "actions": [
+                        {"act": "try_combine"}
+                    ]
+                }
+            ]
+        }
+    ]
+}

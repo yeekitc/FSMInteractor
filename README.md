@@ -6,7 +6,7 @@ A TypeScript implementation of interactive UI components using Finite State Mach
 - **Standard UI Components**: Implementations of checkbox, radio buttons, rotary dial, and standard button
 - **Event Management**: Robust event specification and handling system with filtering and propagation
 - **Region Management**: Screen area definition and tracking with efficient damage/redraw mechanisms
-- **Custom Interactive Components**: [Your custom component description]
+- **Custom Interactive Component**
 
 ## How to Use
 Since the renderer requires running over HTTP(S), set up a local web server to serve the project files. The Live Server extension on VS Code is an option. Then navigate to Debug and Run panel in VSCode to start the server, which will launch a Chrome browser window automatically.

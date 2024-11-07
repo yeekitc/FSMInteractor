@@ -58,6 +58,10 @@ export class FSMInteractor {
     public set x(v : number) {
           
         // **** YOUR CODE HERE ****
+        if (v !== this._x) {
+            this._x = v;
+            this.damage();
+        }
     }
 
     // Y position (top) of this object within the parent Root object (and containing 
@@ -67,6 +71,10 @@ export class FSMInteractor {
     public set y(v : number) {
             
         // **** YOUR CODE HERE ****
+        if (v !== this._y) {
+            this._y = v;
+            this.damage();
+        }
     }
 
     // Position treated as a single value
@@ -91,6 +99,10 @@ export class FSMInteractor {
     public set parent(v : Root | undefined) {
             
         // **** YOUR CODE HERE ****
+        if (v !== this._parent) {
+            this._parent = v;
+            this.damage();
+        }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -111,6 +123,7 @@ export class FSMInteractor {
     public damage() {
            
         // **** YOUR CODE HERE ****
+        this.parent?.damage();
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -124,6 +137,15 @@ export class FSMInteractor {
         if (!this.fsm) return;
 
         // **** YOUR CODE HERE ****
+        for (let region of this.fsm.regions) {
+            ctx.save();
+            
+            // translate to the region's position
+            ctx.translate(region.x, region.y);
+            region.draw(ctx, showDebugging);
+            // translate back
+            ctx.restore();
+        }
     }   
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -143,6 +165,12 @@ export class FSMInteractor {
         if (!this.fsm) return pickList;
            
         // **** YOUR CODE HERE ****
+        // for each region in the FSM, check if the point is inside it
+        for (let reg of this.fsm.regions) {
+            if (reg.pick(localX - reg.x, localY - reg.y)) {
+                pickList.unshift(reg);
+            }
+        }
 
         return pickList;
     }
@@ -151,6 +179,7 @@ export class FSMInteractor {
 
         
         // **** YOUR CODE HERE ****   
+        protected _pickList : Region[] = [];
         // You will need some persistent bookkeeping for dispatchRawEvent()
 
     // Dispatch the given "raw" event by translating it into a series of higher-level
@@ -177,6 +206,54 @@ export class FSMInteractor {
         if (this.fsm === undefined) return;
 
         // **** YOUR CODE HERE ****
+        const currRegs = this.pick(localX, localY);
+        // if press, dispatch press events for all regions in the pick list
+        if (what === 'press') {
+            for (let reg of currRegs) {
+                this.fsm.actOnEvent('press', reg);
+            }
+        } else if (what === 'move') {
+            // keep lists of regions that were exited, entered, and moved inside
+            let exitList : Region[] = [];
+            let enterList : Region[] = [];
+            let moveList : Region[] = [];
+
+            for (let reg of this._pickList) {
+                // if the region is not in the current list, it was exited
+                if (!currRegs.includes(reg)) {
+                    exitList.push(reg);
+                }
+            }
+            for (let reg of currRegs) {
+                // if the region is not in the pick list, it was entered
+                if (!this._pickList.includes(reg)) {
+                    enterList.push(reg);
+                } else { // otherwise, it was moved inside
+                    moveList.push(reg);
+                }
+            }
+            // dispatch the events (exit, enter, move_inside)
+            for (let reg of exitList) {
+                this.fsm.actOnEvent('exit', reg);
+            }
+            for (let reg of enterList) {
+                this.fsm.actOnEvent('enter', reg);
+            }
+            for (let reg of moveList) {
+                this.fsm.actOnEvent('move_inside', reg);
+            }
+        } else if (what === 'release') {
+            // dispatch release events for all regions in the pick list
+            for (let reg of this._pickList) {
+                this.fsm.actOnEvent('release', reg);
+            }
+            // if no regions are currently picked, dispatch release_none
+            if (currRegs.length === 0) {
+                this.fsm.actOnEvent('release_none');
+            }
+        }
+        // update the pick list
+        this._pickList = currRegs;
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
