@@ -1,4 +1,4 @@
-# FSM-Based UI Components
+# FSM-Based UI Components (https://github.com/yeekitc/FSMInteractor.git)
 A TypeScript implementation of interactive UI components using Finite State Machines (FSM), featuring standard UI elements and a custom interaction framework.
 
 ## Features
