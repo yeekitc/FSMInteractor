@@ -1,6 +1,6 @@
 import { Err } from "./Err.js";
 import { Check } from "./Check.js";
-const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event'];
+const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'set_emoji', 'clear_emoji', 'move_region'];
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 export class Action {
     constructor(actType, regionName, param) {
@@ -53,6 +53,25 @@ export class Action {
         else if (this._actType === 'print_event') {
             console.log(this._param);
             console.log(`${evtType}`);
+            return;
+        } // set the emoji of the region to the parameter if the action is set_emoji
+        else if (this._actType === 'set_emoji') {
+            if (!evtReg) {
+                return;
+            }
+            const emojiList = [
+                "💧", "🔥", "🌍", "💨", "⚡", "🌟", "🍃", "🌞", "🌜", "⭐", "💎", "🪨", "🌊", "🪵", "🧊", "☁️", "🌈", "☀️", "⚙️",
+                "🌌", "🌑", "🔮", "💀", "🎇", "🍂", "🌱", "🌀", "🌪️", "🌾", "🧪", "⚗️", "💫", "🌋", "🪰", "🌠", "🧲"
+            ];
+            // randomly choose an emoji from the list
+            const randIndex = Math.floor(Math.random() * emojiList.length);
+            evtReg.emoji = emojiList[randIndex];
+            return;
+        } // clear the emoji of the region if the action is clear_emoji
+        else if (this._actType === 'clear_emoji') {
+            if (evtReg) {
+                evtReg.emoji = "";
+            }
             return;
         }
     }

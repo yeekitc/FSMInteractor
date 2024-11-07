@@ -29,6 +29,8 @@ export function runTests() {
 	test2();
 	test3();
 
+	// testMateriaLLisM();
+
 	console.log("Test is set up...");
 }
 
@@ -73,6 +75,15 @@ function test3() {
 	let fsmInt = new FSMInteractor(undefined, 400,0);
 	root.addChild(fsmInt);
 	fsmInt.startLoadFromJson("./fsm_json/stick.json");
+}
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// Create a button from FSMInteractor
+function testMateriaLLisM() {
+	let fsmInt = new FSMInteractor(undefined, 400,0);
+	root.addChild(fsmInt);
+	fsmInt.startLoadFromJson("./fsm_json/materiaLLisM.json");
 }
 
 //-------------------------------------------------------------------

@@ -1,59 +1,140 @@
 {
     "regions": [
         {
-            "name": "water",
+            "name": "water1",
             "x": 50, "y": 50,
-            "w": 50, "h": 50,
+            "w": 50,
+            "h": 50,
             "emoji": "💧"
         },
         {
-            "name": "fire",
+            "name": "fire1",
             "x": 150, "y": 50,
-            "w": 50, "h": 50,
+            "w": 50,
+            "h": 50,
             "emoji": "🔥"
         },
         {
-            "name": "draggingElement",
-            "x": 0, "y": 0,
-            "w": 50, "h": 50,
-            "emoji": null
+            "name": "earth1",
+            "x": 250,
+            "y": 50,
+            "w": 50,
+            "h": 50,
+            "emoji": "🌍"
+        },
+        {
+            "name": "air1",
+            "x": 350,
+            "y": 50,
+            "w": 50,
+            "h": 50,
+            "emoji": "💨"
         }
     ],
     "states": [
         {
-            "name": "idle",
+            "name": "idle_water1",
             "transitions": [
                 {
-                    "onEvent": {"evtType": "doubleclick", "region": "craftingArea"},
-                    "target": "idle",
+                    "onEvent": { "evtType": "press", "region": "water1" },
+                    "target": "selected_water1",
                     "actions": [
-                        {"act": "spawn_random_known"}
-                    ]
-                },
-                {
-                    "onEvent": {"evtType": "press", "region": "*"},
-                    "target": "dragging",
-                    "actions": [
-                        {"act": "start_drag"}
+                        { "act": "set_emoji", "region": "water1"},
+                        { "act": "print", "param": "field 1 selected, proceed" }
                     ]
                 }
             ]
         },
         {
-            "name": "dragging",
+            "name": "selected_water1",
             "transitions": [
                 {
-                    "onEvent": {"evtType": "move", "region": "*"},
-                    "target": "dragging",
+                    "onEvent": { "evtType": "press", "region": "water1" },
+                    "target": "idle_fire1",
                     "actions": [
-                        {"act": "move_dragged"}
+                        { "act": "clear_emoji", "region": "water1" },
+                        { "act": "print", "param": "field 1 unselected" }
                     ]
-                },
+                }
+            ]
+        },
+
+        {
+            "name": "idle_fire1",
+            "transitions": [
                 {
-                    "onEvent": {"evtType": "release", "region": "*"},
-                    "target": "idle",
+                    "onEvent": { "evtType": "press", "region": "fire1" },
+                    "target": "selected_fire1",
                     "actions": [
-                        {"act": "try_combine"}
+                        { "act": "set_emoji", "region": "fire1"},
+                        { "act": "print", "param": "field 2 selected" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "selected_fire1",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "fire1" },
+                    "target": "idle_earth1",
+                    "actions": [
+                        { "act": "clear_emoji", "region": "fire1" },
+                        { "act": "print", "param": "field 2 unselected" }
+                    ]
+                }
+            ]
+        },
+
+        {
+            "name": "idle_earth1",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "earth1" },
+                    "target": "selected_earth1",
+                    "actions": [
+                        { "act": "set_emoji", "region": "earth1"},
+                        { "act": "print", "param": "field 3 selected" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "selected_earth1",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "earth1" },
+                    "target": "idle_air1",
+                    "actions": [
+                        { "act": "clear_emoji", "region": "earth1" },
+                        { "act": "print", "param": "field 3 unselected" }
+                    ]
+                }
+            ]
+        },
+
+        {
+            "name": "idle_air1",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "air1" },
+                    "target": "selected_air1",
+                    "actions": [
+                        { "act": "set_emoji", "region": "air1"},
+                        { "act": "print", "param": "field 4 selected" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "selected_air1",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "air1" },
+                    "target": "idle_water1",
+                    "actions": [
+                        { "act": "clear_emoji", "region": "air1" },
+                        { "act": "print", "param": "field 4 unselected" }
                     ]
                 }
             ]

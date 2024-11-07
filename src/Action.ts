@@ -22,8 +22,8 @@ import { Check } from "./Check.js";
 //===================================================================
 
 // A type for the actions we support, along with correponding strings
-export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event';
-const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event'];
+export type ActionType = 'set_image' |  'clear_image' | 'set_emoji' | 'clear_emoji' | 'move_region' | 'none' | 'print' | 'print_event';
+const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event', 'set_emoji', 'clear_emoji', 'move_region'];
 
 // The type we are expecting to get back from decoding json for an Action
 export type Action_json = {act: ActionType, region: string, param: string};
@@ -106,7 +106,25 @@ export class Action {
             console.log(this._param);
             console.log(`${evtType}`);
             return;
-        }
+        } // set the emoji of the region to the parameter if the action is set_emoji
+        else if (this._actType === 'set_emoji') {
+            if (!evtReg) { return; }
+
+            const emojiList = [
+                "💧", "🔥", "🌍", "💨", "⚡", "🌟", "🍃", "🌞", "🌜", "⭐", "💎", "🪨", "🌊", "🪵", "🧊", "☁️", "🌈", "☀️", "⚙️",
+                "🌌", "🌑", "🔮", "💀", "🎇", "🍂", "🌱", "🌀", "🌪️", "🌾", "🧪", "⚗️", "💫", "🌋", "🪰", "🌠", "🧲"
+            ];
+            // randomly choose an emoji from the list
+            const randIndex = Math.floor(Math.random() * emojiList.length);
+            evtReg.emoji = emojiList[randIndex];
+            return;
+        } // clear the emoji of the region if the action is clear_emoji
+        else if (this._actType === 'clear_emoji') {
+            if (evtReg) {
+                evtReg.emoji = "";
+            }
+            return;
+        } 
     }
 
      //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
