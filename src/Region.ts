@@ -33,7 +33,8 @@ export type Region_json = {
     y       : number, 
     w       : number, 
     h       : number, 
-    imageLoc: string };
+    imageLoc: string 
+    emoji?  : string};
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -45,11 +46,14 @@ export class Region {
 		y         : number = 0,
 		w         : number = -1, // -1 here implies we resize based on image
 		h         : number = -1, // -1 here implies we resize base on image) 
-        parent?   : FSM) 
+        parent?   : FSM,
+        emoji?    : string
+    ) 
 	{
         this._name = name;
         this._parent = parent;
         this._imageLoc = imageLoc;
+        this._emoji = emoji;
 
         // if either of the sizes is -1, we set to resize based on the image
         this._resizedByImage = ((w < 0) || (h < 0));
@@ -78,9 +82,10 @@ export class Region {
         const y = Check.numberVal(reg.y??0, "Region.fromJson{y:}");    
         const w = Check.numberVal(reg.w??-1, "Region.fromJson{w:}");    
         const h = Check.numberVal(reg.h??-1, "Region.fromJson{h:}");    
-        const imageLoc = Check.stringVal(reg.imageLoc??"", "Region.fromJson{imageLoc:}");    
+        const imageLoc = Check.stringVal(reg.imageLoc??"", "Region.fromJson{imageLoc:}");  
+        const emoji = Check.stringVal(reg.emoji??"", "Region.fromJson{emoji:}");  
         
-        return new Region(name, imageLoc, x,y, w,h, parent);
+        return new Region(name, imageLoc, x,y, w,h, parent, emoji);
     }
      
     //-------------------------------------------------------------------
@@ -93,6 +98,10 @@ export class Region {
     public set x(v : number) {
             
         // **** YOUR CODE HERE ****
+        if (v !== this._x) {
+            this._x = v;
+            this.damage();
+        }
     }
        
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -103,6 +112,10 @@ export class Region {
     public set y(v : number) {
             
         // **** YOUR CODE HERE ****
+        if (v !== this._y) {
+            this._y = v;
+            this.damage();
+        }
     }   
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -114,6 +127,10 @@ export class Region {
     public set w(v : number) {
             
         // **** YOUR CODE HERE ****
+        if (v !== this._w) {
+            this._w = v;
+            this.damage();
+        }
     }  
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -125,6 +142,10 @@ export class Region {
     public set h(v : number) {
             
         // **** YOUR CODE HERE ****
+        if (v !== this._h) {
+            this._h = v;
+            this.damage();
+        }
     }  
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -156,6 +177,10 @@ export class Region {
     public set parent(v : FSM | undefined) {
             
         // **** YOUR CODE HERE ****
+        if (v !== this._parent) {
+            this._parent = v;
+            this.damage();
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -173,6 +198,15 @@ export class Region {
         if (v !== this._imageLoc) {
             this._imageLoc = v;
             this._startImageLoad();
+        }
+    }
+
+    protected _emoji : string | undefined;
+    public get emoji() {return this._emoji;}
+    public set emoji(v : string | undefined) {
+        if (v !== this._emoji) {
+            this._emoji = v;
+            this.damage();
         }
     }
 
@@ -219,9 +253,9 @@ export class Region {
     public pick(localX : number, localY : number) : boolean {
             
         // **** YOUR CODE HERE ****
-        
-        // **** Remove this, it's just here to make this compile as-is
-        return false;
+        const testX = 0 <= localX && localX <= this.w;
+        const testY = 0 <= localY && localY <= this.h;
+        return testX && testY;
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -233,11 +267,23 @@ export class Region {
     // be attempted.  If the showDebugFrame parameter is passed true, a frame is drawn
     // around the (input) bounds of the region for debugging purposes.
     public draw(ctx : CanvasRenderingContext2D, showDebugFrame : boolean = false) : void {
+        // if we have a valid emoji, draw it
+        if (this.emoji) {
+            ctx.save();
+            ctx.font = "30px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const centerX = this.w / 2;
+            const centerY = this.h / 2;
+            ctx.fillText(this.emoji, centerX, centerY);
+            ctx.restore();
+        }
         // if we have a valid loaded image, draw it
         if (this.loaded && !this.loadError && this.image) {
                
             // **** YOUR CODE HERE ****
-
+            ctx.clearRect(0, 0, this.w, this.h);
+            ctx.drawImage(this.image, 0, 0);
         }
         
         //draw a frame indicating the (input) bounding box if requested
@@ -257,6 +303,7 @@ export class Region {
     public damage() {
             
         // **** YOUR CODE HERE ****
+        this._parent?.damage();
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

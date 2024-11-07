@@ -86,7 +86,7 @@ export class FSMInteractor {
         if ((v.x !== this._x) || (v.y !== this._y)) {
             this._x = v.x;
             this._y = v.y;
-            this.parent?.damage;
+            this.parent?.damage();
         }
     }
     

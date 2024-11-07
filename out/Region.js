@@ -13,10 +13,11 @@ import { Check } from "./Check.js";
 export class Region {
     constructor(name = "", imageLoc = "", x = 0, y = 0, w = -1, // -1 here implies we resize based on image
     h = -1, // -1 here implies we resize base on image) 
-    parent) {
+    parent, emoji) {
         this._name = name;
         this._parent = parent;
         this._imageLoc = imageLoc;
+        this._emoji = emoji;
         // if either of the sizes is -1, we set to resize based on the image
         this._resizedByImage = ((w < 0) || (h < 0));
         // -1 size defaults to 0 (but replaced on load)
@@ -36,30 +37,47 @@ export class Region {
     // coming from json parsing lives in javascript land and may not actually be typed
     // at runtime as we think/hope it is).
     static fromJson(reg, parent) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         const name = reg.name;
         const x = Check.numberVal((_a = reg.x) !== null && _a !== void 0 ? _a : 0, "Region.fromJson{x:}");
         const y = Check.numberVal((_b = reg.y) !== null && _b !== void 0 ? _b : 0, "Region.fromJson{y:}");
         const w = Check.numberVal((_c = reg.w) !== null && _c !== void 0 ? _c : -1, "Region.fromJson{w:}");
         const h = Check.numberVal((_d = reg.h) !== null && _d !== void 0 ? _d : -1, "Region.fromJson{h:}");
         const imageLoc = Check.stringVal((_e = reg.imageLoc) !== null && _e !== void 0 ? _e : "", "Region.fromJson{imageLoc:}");
-        return new Region(name, imageLoc, x, y, w, h, parent);
+        const emoji = Check.stringVal((_f = reg.emoji) !== null && _f !== void 0 ? _f : "", "Region.fromJson{emoji:}");
+        return new Region(name, imageLoc, x, y, w, h, parent, emoji);
     }
     get x() { return this._x; }
     set x(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._x) {
+            this._x = v;
+            this.damage();
+        }
     }
     get y() { return this._y; }
     set y(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._y) {
+            this._y = v;
+            this.damage();
+        }
     }
     get w() { return this._w; }
     set w(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._w) {
+            this._w = v;
+            this.damage();
+        }
     }
     get h() { return this._h; }
     set h(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._h) {
+            this._h = v;
+            this.damage();
+        }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
     // Size of this object considered as one value
@@ -77,12 +95,23 @@ export class Region {
     get parent() { return this._parent; }
     set parent(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._parent) {
+            this._parent = v;
+            this.damage();
+        }
     }
     get imageLoc() { return this._imageLoc; }
     set imageLoc(v) {
         if (v !== this._imageLoc) {
             this._imageLoc = v;
             this._startImageLoad();
+        }
+    }
+    get emoji() { return this._emoji; }
+    set emoji(v) {
+        if (v !== this._emoji) {
+            this._emoji = v;
+            this.damage();
         }
     }
     get loaded() { return this._loaded; }
@@ -104,8 +133,9 @@ export class Region {
     // coordinates of this object) should be considered "inside" or "over" this region.
     pick(localX, localY) {
         // **** YOUR CODE HERE ****
-        // **** Remove this, it's just here to make this compile as-is
-        return false;
+        const testX = 0 <= localX && localX <= this.w;
+        const testY = 0 <= localY && localY <= this.h;
+        return testX && testY;
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Draw the image for this region using the givn drawing context.  The context 
@@ -115,9 +145,22 @@ export class Region {
     // be attempted.  If the showDebugFrame parameter is passed true, a frame is drawn
     // around the (input) bounds of the region for debugging purposes.
     draw(ctx, showDebugFrame = false) {
+        // if we have a valid emoji, draw it
+        if (this.emoji) {
+            ctx.save();
+            ctx.font = "30px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const centerX = this.w / 2;
+            const centerY = this.h / 2;
+            ctx.fillText(this.emoji, centerX, centerY);
+            ctx.restore();
+        }
         // if we have a valid loaded image, draw it
         if (this.loaded && !this.loadError && this.image) {
             // **** YOUR CODE HERE ****
+            ctx.clearRect(0, 0, this.w, this.h);
+            ctx.drawImage(this.image, 0, 0);
         }
         //draw a frame indicating the (input) bounding box if requested
         if (showDebugFrame) {
@@ -132,7 +175,9 @@ export class Region {
     // has changed (e.g., the image or position has changed).  This passes this image
     // notification to its parent FSM which eventually results in a redraw.
     damage() {
+        var _a;
         // **** YOUR CODE HERE ****
+        (_a = this._parent) === null || _a === void 0 ? void 0 : _a.damage();
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Asynchronous method to start loading of the image for this region.  This 

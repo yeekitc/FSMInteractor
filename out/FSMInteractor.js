@@ -40,6 +40,9 @@ import { Err } from "./Err.js";
 //=================================================================== 
 export class FSMInteractor {
     constructor(fsm = undefined, x = 0, y = 0, parent) {
+        //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        // **** YOUR CODE HERE ****   
+        this._pickList = [];
         this._fsm = fsm;
         this._x = x;
         this._y = y;
@@ -50,10 +53,18 @@ export class FSMInteractor {
     get x() { return this._x; }
     set x(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._x) {
+            this._x = v;
+            this.damage();
+        }
     }
     get y() { return this._y; }
     set y(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._y) {
+            this._y = v;
+            this.damage();
+        }
     }
     // Position treated as a single value
     get position() {
@@ -64,12 +75,16 @@ export class FSMInteractor {
         if ((v.x !== this._x) || (v.y !== this._y)) {
             this._x = v.x;
             this._y = v.y;
-            (_a = this.parent) === null || _a === void 0 ? void 0 : _a.damage;
+            (_a = this.parent) === null || _a === void 0 ? void 0 : _a.damage();
         }
     }
     get parent() { return this._parent; }
     set parent(v) {
         // **** YOUR CODE HERE ****
+        if (v !== this._parent) {
+            this._parent = v;
+            this.damage();
+        }
     }
     get fsm() { return this._fsm; }
     //-------------------------------------------------------------------
@@ -82,7 +97,9 @@ export class FSMInteractor {
     // regions, etc.  This method passes the damage notification to its hosting Root
     // object which coordinates eventual redraw by calling this object's draw() method.
     damage() {
+        var _a;
         // **** YOUR CODE HERE ****
+        (_a = this.parent) === null || _a === void 0 ? void 0 : _a.damage();
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Draw the display for this object using the given drawing context object.  If the
@@ -94,6 +111,14 @@ export class FSMInteractor {
         if (!this.fsm)
             return;
         // **** YOUR CODE HERE ****
+        for (let region of this.fsm.regions) {
+            ctx.save();
+            // translate to the region's position
+            ctx.translate(region.x, region.y);
+            region.draw(ctx, showDebugging);
+            // translate back
+            ctx.restore();
+        }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Perform a "pick" operation, to determine the list of regions in our controlling
@@ -110,10 +135,14 @@ export class FSMInteractor {
         if (!this.fsm)
             return pickList;
         // **** YOUR CODE HERE ****
+        // for each region in the FSM, check if the point is inside it
+        for (let reg of this.fsm.regions) {
+            if (reg.pick(localX - reg.x, localY - reg.y)) {
+                pickList.unshift(reg);
+            }
+        }
         return pickList;
     }
-    //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-    // **** YOUR CODE HERE ****   
     // You will need some persistent bookkeeping for dispatchRawEvent()
     // Dispatch the given "raw" event by translating it into a series of higher-level
     // events which are formulated in terms of the regions of our FSM.  "Raw" events 
@@ -137,6 +166,56 @@ export class FSMInteractor {
         if (this.fsm === undefined)
             return;
         // **** YOUR CODE HERE ****
+        const currRegs = this.pick(localX, localY);
+        // if press, dispatch press events for all regions in the pick list
+        if (what === 'press') {
+            for (let reg of currRegs) {
+                this.fsm.actOnEvent('press', reg);
+            }
+        }
+        else if (what === 'move') {
+            // keep lists of regions that were exited, entered, and moved inside
+            let exitList = [];
+            let enterList = [];
+            let moveList = [];
+            for (let reg of this._pickList) {
+                // if the region is not in the current list, it was exited
+                if (!currRegs.includes(reg)) {
+                    exitList.push(reg);
+                }
+            }
+            for (let reg of currRegs) {
+                // if the region is not in the pick list, it was entered
+                if (!this._pickList.includes(reg)) {
+                    enterList.push(reg);
+                }
+                else { // otherwise, it was moved inside
+                    moveList.push(reg);
+                }
+            }
+            // dispatch the events (exit, enter, move_inside)
+            for (let reg of exitList) {
+                this.fsm.actOnEvent('exit', reg);
+            }
+            for (let reg of enterList) {
+                this.fsm.actOnEvent('enter', reg);
+            }
+            for (let reg of moveList) {
+                this.fsm.actOnEvent('move_inside', reg);
+            }
+        }
+        else if (what === 'release') {
+            // dispatch release events for all regions in the pick list
+            for (let reg of this._pickList) {
+                this.fsm.actOnEvent('release', reg);
+            }
+            // if no regions are currently picked, dispatch release_none
+            if (currRegs.length === 0) {
+                this.fsm.actOnEvent('release_none');
+            }
+        }
+        // update the pick list
+        this._pickList = currRegs;
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Method to begin an asychnous load of a FSM_json object from a remotely loaded 
