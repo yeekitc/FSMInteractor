@@ -84,6 +84,29 @@ export class Action {
         if (this._actType === 'none') return;
         
         // **** YOUR CODE HERE ****
+        // carry out the action, using the region and parameter
+        // set the image of the region to the parameter if the action is set_image
+        if (this._actType === 'set_image') {
+            if (this._onRegion) {
+                this._onRegion.imageLoc = this._param;
+            }
+            return;
+        } // clear the image of the region if the action is clear_image
+        else if (this._actType === 'clear_image') {
+            if (this._onRegion) {
+                this._onRegion.imageLoc = "";
+            }
+            return;
+        } // print the parameter if the action is print 
+        else if (this._actType === 'print') {
+            console.log(this._param);
+            return;
+        } // or print the parameter and the event type and region if the action is print_event 
+        else if (this._actType === 'print_event') {
+            console.log(this._param);
+            console.log(`${evtType}`);
+            return;
+        }
     }
 
      //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -93,6 +116,13 @@ export class Action {
     public bindRegion(regionList : readonly Region[]) : void {
             
         // **** YOUR CODE HERE ****
+        // look for the region in the list of regions
+        for (let region of regionList) {
+            if (region.name === this._onRegionName) {
+                this._onRegion = region;
+                return;
+            }
+        }
         
         // ok to have no matching region for some actions
         if (this.actType === 'none' || this.actType === 'print' || 

@@ -43,6 +43,13 @@ export class Transition {
     // event types and their meaning).
     match(evtType, regn) {
         // **** YOUR CODE HERE ****
+        // check if the event matches the event spec for this transition
+        if (regn) {
+            return this.onEvent.match(evtType, regn);
+        }
+        else {
+            return this.onEvent.match(evtType);
+        }
         // **** Remove this, it's just here to get this file to compile
         return false;
     }
@@ -53,6 +60,13 @@ export class Transition {
     // the FSM (in which case an error message will also be generted using Err.emit()).
     bindTarget(stateList) {
         // **** YOUR CODE HERE ****
+        // look for the target state in the list of states
+        for (let state of stateList) {
+            if (state.name === this._targetName) {
+                this._target = state;
+                return;
+            }
+        }
         // no matching state name, so generate an error message
         Err.emit(`State '${this._targetName}' in transition does not match any state.`);
     }

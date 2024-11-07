@@ -74,6 +74,15 @@ export class Root {
         try {
 
         // **** YOUR CODE HERE ****
+        // clear the canvas
+        this._canvasContext.clearRect(0,0, this._owningCanvas.width, this._owningCanvas.height);
+        // for each child, save the context, translate to the child's coordinates, draw the child, and restore the context
+        for (let ch of this.children) {
+            this._canvasContext.save();
+            this._canvasContext.translate(ch.x, ch.y);
+            ch.draw(this._canvasContext, this._doDebugOutput);
+            this._canvasContext.restore();
+        }
 
         // currently, for ease of debugging, we let exceptions propogate out from this 
         // redraw (and typically all the out of our code).  this will basically shut 

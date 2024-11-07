@@ -85,6 +85,15 @@ export class EventSpec {
         }
      
         // **** YOUR CODE HERE ****
+        // look for the region in the list and assign it to this._region
+        for (let reg of regionList) {
+            if (reg.name === this._regionName) {
+                this._region = reg;
+                return;
+            }
+        }
+        // if it is not found, set this._region to undefined
+        this._region = undefined;
 
         // we didn't match any region, that's ok for some forms that don't need a region
         if (this.evtType === 'nevermatch') return;
@@ -104,9 +113,16 @@ export class EventSpec {
     public match(evtType : EventType, regn? : Region) : boolean {
           
         // **** YOUR CODE HERE ****
-
-        // **** Remove this: just here to get it to compile... ****
-        return false;
+        // check if the event matches the event spec for this transition
+        if (this.evtType === 'any') {
+            return true;
+        } else if (this.evtType === 'nevermatch') {
+            return false;
+        } 
+        const evtTypeMatch = this.evtType === evtType;
+        const regnMatch = this.region === regn;
+        const regUndef = (this.region === undefined) && (this.regionName === "*");
+        return evtTypeMatch && (regnMatch || regUndef);
     }
     
     //-------------------------------------------------------------------

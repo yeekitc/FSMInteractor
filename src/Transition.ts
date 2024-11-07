@@ -90,6 +90,12 @@ export class Transition {
     public match(evtType : EventType, regn? : Region) : boolean {
            
         // **** YOUR CODE HERE ****
+        // check if the event matches the event spec for this transition
+        if (regn) { 
+            return this.onEvent.match(evtType, regn);
+        } else {
+            return this.onEvent.match(evtType);
+        }
 
         // **** Remove this, it's just here to get this file to compile
         return false;
@@ -104,6 +110,13 @@ export class Transition {
     public bindTarget(stateList : readonly State[]) : void {
             
         // **** YOUR CODE HERE ****
+        // look for the target state in the list of states
+        for (let state of stateList) {
+            if (state.name === this._targetName) {
+                this._target = state;
+                return;
+            }
+        }
 
         // no matching state name, so generate an error message
         Err.emit(`State '${this._targetName}' in transition does not match any state.`);
